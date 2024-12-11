@@ -102,7 +102,7 @@ fi
 
 # Create systemd service file
 show "Creating systemd service..." "progress"
-sudo bash -c "cat > $SERVICE_FILE <<EOF
+sudo bash -c "cat > $SERVICE_FILE << 'EOF'
 [Unit]
 Description=Nexus XYZ Prover Service
 After=network.target
