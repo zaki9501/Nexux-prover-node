@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Displaying logo
-curl -s https://raw.githubusercontent.com/zaki9501/piki-nodes/refs/heads/main/logo.sh | bash
+curl -s https://raw.githubusercontent.com/zaki9501/piki-nodes/refs/heads/main/logo.sh
 sleep 5
 
 # Define styles for messages
