@@ -13,7 +13,7 @@ RESET='\033[0m'
 
 # Function to display messages
 show() {
-    case $2 in
+    case "$2" in
         "error")
             echo -e "${PINK}${BOLD}❌ $1${RESET}"
             ;;
@@ -73,7 +73,7 @@ if ! git clone https://github.com/nexus-xyz/network-api.git "$HOME/network-api";
 fi
 
 # Navigate to CLI directory
-cd "$HOME/network-api/clients/cli" || exit
+cd "$HOME/network-api/clients/cli" || exit 1
 
 # Install dependencies
 show "Installing required dependencies..." "progress"
@@ -125,7 +125,7 @@ sudo systemctl daemon-reload
 sudo systemctl start "$SERVICE_NAME.service"
 sudo systemctl enable "$SERVICE_NAME.service"
 
-# Prompt for prover ID
+# Prompt for Prover ID
 read -p "Please enter your Prover ID: " PROVER_ID
 while [[ ! $PROVER_ID =~ ^[A-Za-z0-9]{20,}$ ]]; do
     show "Invalid Prover ID. Please enter a valid ID." "error"
@@ -135,7 +135,7 @@ done
 # Update the prover ID in the .nexus/prover-id file
 if [ -f "$HOME/.nexus/prover-id" ]; then
     show "Updating prover ID in .nexus/prover-id..." "progress"
-    sed -i "s/.*/$PROVER_ID/" "$HOME/.nexus/prover-id"
+    echo "$PROVER_ID" > "$HOME/.nexus/prover-id"
     show "Prover ID updated successfully."
 else
     show "Prover ID file not found." "error"
