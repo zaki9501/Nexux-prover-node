@@ -125,5 +125,26 @@ sudo systemctl daemon-reload
 sudo systemctl start "$SERVICE_NAME.service"
 sudo systemctl enable "$SERVICE_NAME.service"
 
+# Prompt for prover ID
+read -p "Please enter your Prover ID: " PROVER_ID
+while [[ ! $PROVER_ID =~ ^[A-Za-z0-9]{20,}$ ]]; do
+    show "Invalid Prover ID. Please enter a valid ID." "error"
+    read -p "Please enter your Prover ID: " PROVER_ID
+done
+
+# Update the prover ID in the .nexus/prover-id file
+if [ -f "$HOME/.nexus/prover-id" ]; then
+    show "Updating prover ID in .nexus/prover-id..." "progress"
+    sed -i "s/.*/$PROVER_ID/" "$HOME/.nexus/prover-id"
+    show "Prover ID updated successfully."
+else
+    show "Prover ID file not found." "error"
+    exit 1
+fi
+
+# Restart the Nexus service
+show "Restarting the Nexus service..." "progress"
+sudo systemctl restart "$SERVICE_NAME.service"
+
 show "Nexus Prover installation and service setup complete!"
 show "You can check Nexus Prover logs using: journalctl -u $SERVICE_NAME.service -fn 50"
