@@ -15,19 +15,22 @@ RESET='\033[0m'
 show() {
     case "$2" in
         "error")
-            echo -e "${PINK}${BOLD}❌ $1${RESET}"
+            echo -e "${PINK}${BOLD}\u274C $1${RESET}"
             ;;
         "progress")
-            echo -e "${PINK}${BOLD}⏳ $1${RESET}"
+            echo -e "${PINK}${BOLD}\u231B $1${RESET}"
             ;;
         *)
-            echo -e "${GREEN}${BOLD}✅ $1${RESET}"
+            echo -e "${GREEN}${BOLD}\u2705 $1${RESET}"
             ;;
     esac
 }
 
 SERVICE_NAME="nexus"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
+
+# Ensure the script runs in an interactive shell
+export NONINTERACTIVE=0
 
 # Function to install a package if not installed
 install_package() {
@@ -88,7 +91,7 @@ PROTOC_URL="https://github.com/protocolbuffers/protobuf/releases/download/v${PRO
 wget "$PROTOC_URL" -q -O protoc.zip
 unzip -o protoc.zip -d protoc
 sudo mv protoc/bin/protoc /usr/local/bin/
-sudo mv protoc/include/* /usr/local/include/
+sudo mv protoc/include/* /usr/local/include/ 2>/dev/null || show "Skipping conflicting include files." "progress"
 rm -rf protoc protoc.zip
 
 # Stop and disable service if already running
@@ -126,13 +129,18 @@ sudo systemctl start "$SERVICE_NAME.service"
 sudo systemctl enable "$SERVICE_NAME.service"
 
 # Prompt for Prover ID
-read -p "Please enter your Prover ID: " PROVER_ID
+unset PROVER_ID
+echo "\nPlease enter your Prover ID:"
+read -p "Prover ID (must be at least 20 alphanumeric characters): " PROVER_ID
+
 while [[ ! $PROVER_ID =~ ^[A-Za-z0-9]{20,}$ ]]; do
     show "Invalid Prover ID. Please enter a valid ID." "error"
-    read -p "Please enter your Prover ID: " PROVER_ID
+    read -p "Prover ID: " PROVER_ID
+    unset PROVER_ID
+    echo "DEBUG: Entered Prover ID: $PROVER_ID"
 done
 
-# Update the prover ID in the .nexus/prover-id file
+# Update the Prover ID in the .nexus/prover-id file
 if [ -f "$HOME/.nexus/prover-id" ]; then
     show "Updating prover ID in .nexus/prover-id..." "progress"
     echo "$PROVER_ID" > "$HOME/.nexus/prover-id"
@@ -146,5 +154,6 @@ fi
 show "Restarting the Nexus service..." "progress"
 sudo systemctl restart "$SERVICE_NAME.service"
 
+# Completion message
 show "Nexus Prover installation and service setup complete!"
 show "You can check Nexus Prover logs using: journalctl -u $SERVICE_NAME.service -fn 50"
