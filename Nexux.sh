@@ -129,14 +129,12 @@ sudo systemctl start "$SERVICE_NAME.service"
 sudo systemctl enable "$SERVICE_NAME.service"
 
 # Prompt for Prover ID
-unset PROVER_ID
-echo "\nPlease enter your Prover ID:"
-read -p "Prover ID (must be at least 20 alphanumeric characters): " PROVER_ID
-
+PROVER_ID=""
 while [[ ! $PROVER_ID =~ ^[A-Za-z0-9]{20,}$ ]]; do
-    show "Invalid Prover ID. Please enter a valid ID." "error"
-    read -p "Prover ID: " PROVER_ID
-    unset PROVER_ID
+    if [[ -n "$PROVER_ID" ]]; then
+        show "Invalid Prover ID. Please enter a valid ID." "error"
+    fi
+    read -p "Prover ID (must be at least 20 alphanumeric characters): " PROVER_ID
     echo "DEBUG: Entered Prover ID: $PROVER_ID"
 done
 
