@@ -128,22 +128,18 @@ sudo systemctl daemon-reload
 sudo systemctl start "$SERVICE_NAME.service"
 sudo systemctl enable "$SERVICE_NAME.service"
 
-# Ensure the script is running interactively
-if [[ "$NONINTERACTIVE" == "1" ]]; then
-    show "This script must be run in interactive mode to set the Prover ID." "error"
-    exit 1
-fi
-
 # Prompt for Prover ID
 PROVER_ID=""
+
 while [[ ! $PROVER_ID =~ ^[A-Za-z0-9]{20,}$ ]]; do
     if [[ -n "$PROVER_ID" ]]; then
         show "Invalid Prover ID. Please enter a valid ID." "error"
     fi
 
-    # Prompt for input
-    read -rp "Prover ID (must be at least 20 alphanumeric characters): " PROVER_ID
-    echo "DEBUG: Entered Prover ID: $PROVER_ID"
+    # Use /dev/tty for reading input directly from the terminal
+    echo -ne "Prover ID (must be at least 20 alphanumeric characters): " > /dev/tty
+    read PROVER_ID < /dev/tty
+    echo "DEBUG: Entered Prover ID: $PROVER_ID" > /dev/tty
 done
 
 # Update the Prover ID in the .nexus/prover-id file
