@@ -4,26 +4,38 @@
 curl -s https://raw.githubusercontent.com/zaki9501/piki-nodes/refs/heads/main/logo.sh
 sleep 5
 
-# Define styles for messages
 BOLD=$(tput bold)
-NORMAL=$(tput sgr0)
-PINK='\033[1;35m'
-GREEN='\033[1;32m'
-RESET='\033[0m'
+NORMAL=$(tput sgr0) # sgr0 resets all attributes
+PINK=$(tput setaf 5) # setaf 5 is magenta/pink on most terminals
+GREEN=$(tput setaf 2) # setaf 2 is green
+RESET=$(tput sgr0)
 
-# Function to display messages
 show() {
-    case "$2" in
+    local message=$1
+    local type=$2
+    local color style emoji timestamp
+
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+
+    case "$type" in
         "error")
-            echo -e "${PINK}${BOLD}\u274C $1${RESET}"
+            color=$PINK
+            style=$BOLD
+            emoji="❌"
             ;;
         "progress")
-            echo -e "${PINK}${BOLD}\u231B $1${RESET}"
+            color=$PINK
+            style=$BOLD
+            emoji="⏳"
             ;;
         *)
-            echo -e "${GREEN}${BOLD}\u2705 $1${RESET}"
+            color=$GREEN
+            style=$BOLD
+            emoji="✅"
             ;;
     esac
+
+    echo -e "[${timestamp}] ${color}${style}${emoji} $message${RESET}"
 }
 
 SERVICE_NAME="nexus"
@@ -137,7 +149,7 @@ while [[ ! $PROVER_ID =~ ^[A-Za-z0-9]{20,}$ ]]; do
     fi
 
     # Use /dev/tty for reading input directly from the terminal
-    echo -ne "Prover ID (must be at least 20 alphanumeric characters): " > /dev/tty
+    echo -ne "Enter Prover ID (must be 26 characters): " > /dev/tty
     read PROVER_ID < /dev/tty
     echo "DEBUG: Entered Prover ID: $PROVER_ID" > /dev/tty
 done
